@@ -1,60 +1,50 @@
-var n = 20, v = [];
-var width = window.innerWidth;
-var height = window.innerHeight;
-
+var n = 10, v = [], minimDist = Infinity, p1 = {x:0,y:0}, p2 = {x:0,y:0}, cp1 = {x:0,y:0}, cp2 = {x:0,y:0}, midLine = null;
 function preload() {
     img = loadImage('avion.png');
 }
 
 function setup(){
-    var width = window.innerWidth;
-    var height = window.innerHeight;
-    createCanvas(width, height);
-    for (let i = 0; i < n; ++i){
-        let x = random(width);
-        let y = random(height);
+    createCanvas(window.innerWidth, window.innerHeight);
+    for (var i = 0; i < n; ++i){
+        var x = Math.floor(random(window.innerWidth - 100)) + 50;
+        var y = Math.floor(random(window.innerHeight - 100)) + 50;
         v.push({x:x,y:y});
     }
-    v.sort(function(a, b){
-        if (a.x < b.x){
-            return -1;
-        }
-        return 1;
-    });
-    image(img, 10, 10, 50, 50);
+    v.sort((a, b) => a.x - b.x);
     minDist(v, 0, n - 1);
 }
 
-var minimDist = Infinity;
-var p1 = {x:0,y:0}, p2 = {x:0,y:0}, cp1 = {x:0,y:0}, cp2 = {x:0,y:0}, midLine = null;
-
 function draw(){
-    background(255, 204, 0);
+    background(0,191,255);
     strokeWeight(4);
     stroke("black");
     if (midLine != null){
         line(midLine, 0, midLine, height);
     }
     line(cp1.x, cp1.y, cp2.x, cp2.y);
-    stroke('rgb(0,255,0)');
+    stroke('rgb(0,100,0)');
     line(p1.x, p1.y, p2.x, p2.y);
     strokeWeight(1);
     stroke("black");
     for (let i = 0; i < n; ++i){
         imageMode(CENTER);
         image(img, v[i].x, v[i].y, 25, 25);
+        textSize(14);
+        text('(' + v[i].x + ',' + v[i].y + ')', v[i].x, v[i].y - 20);
     }
 }
 
 
 async function calcDist(a, b){
-    await sleep(130);
+    await sleep(200);
     return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 }
 
 function resetChecking(){
     cp1 = {x:0,y:0};
     cp2 = {x:0,y:0};
+    workingArea = {x1:0,y1:0,x2:0,y2:0};
+    midLine = null;
 }
 
 async function Merge(v, st, dr){
@@ -121,12 +111,12 @@ async function minDist(v, st, dr){
     }
     else{
         var mid = Math.floor((st + dr) / 2);
-        var midX = v[mid].x;
+        var midX = v[mid].x, stX = v[st].x, drX = v[dr].x;
         await minDist(v, st, mid);
         await minDist(v, mid + 1, dr);
+        workingArea = {x1: stX, y1: 0, x2: drX, y2: window.innerHeight};
         await Merge(v, st, dr);
         midLine = midX;
-        console.log(st + " " + dr);
         var aux = [];
         for (let i = st; i <= dr; ++i){
             cp1 = v[i];
@@ -150,8 +140,7 @@ async function minDist(v, st, dr){
         }
     }
     resetChecking();
-    midLine = null;
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
+}
