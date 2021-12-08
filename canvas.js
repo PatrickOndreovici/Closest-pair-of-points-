@@ -38,7 +38,6 @@ function draw(){
 }
 
 function mouseClicked() {
-    console.log("DA")
     if (index != -1){
         index = -1
     }
@@ -141,8 +140,4 @@ function minDist(v, st, dr){
             }
         }
     }
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
